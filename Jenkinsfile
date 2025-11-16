@@ -1,44 +1,44 @@
 pipeline {
-    agent any
-
-    // Utilise JDK et Maven configurés dans Jenkins
-    tools {
-        jdk 'JDK17'
-        maven 'Maven'
-    }
-
-    stages {
-        stage('Récupérer le code') {
-            steps {
-                echo 'Récupération du code depuis GitHub...'
-                git branch: 'master',
-                    url: 'https://github.com/emnahomrani29/DevOps.git',
-                    credentialsId: 'github-emnah'
-            }
-        }
-
-        stage('Compiler et générer le JAR') {
-            steps {
-                echo 'Exécution de mvn package...'
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Tests unitaires (Bonus)') {
-            steps {
-                echo 'Lancement des tests...'
-                sh 'mvn test'
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Build réussi ! Archivage du JAR...'
-            archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: false
-        }
-        failure {
-            echo 'Échec du build.'
-        }
-    }
-}
+ agent any 
+--ou--
+ agent {
+ node {
+ label 'build'
+ }
+ }
+ tools {
+ maven 'M2_HOME'
+ }
+ options {
+ --Timeout counter starts after agent is allocated--
+ timeout(time: 1, unit: 'SECONDS')
+ }
+ environment {
+ APP_ENV = "DEV"
+ }
+ stages {
+ stage('Code Checkout') {
+ steps {
+ git branch: 'master',
+ url: 'https://github.com/hwafa/atelier-jenkins.git',
+ credentialsId: 'jenkins-example-github-pat'
+ }
+ }
+ stage('Code Build') {
+ steps {
+ sh 'mvn install -Dmaven.test.skip=true'
+ }
+ }
+ }
+ post {
+ always { 
+ echo "======always======"
+ }
+ success {
+ echo "=====pipeline executed successfully ====="
+ }
+ failure {
+ echo "======pipeline execution failed======"
+ }
+ }
+ }
