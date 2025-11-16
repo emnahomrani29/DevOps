@@ -61,7 +61,10 @@
             <version>2.1.0</version>
         </dependency>
     </dependencies>
-
+    <groupId>com.example</groupId>
+    <artifactId>atelier2-jenkins</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
     <build>
     <plugins>
             <plugin>
