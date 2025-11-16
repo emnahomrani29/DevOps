@@ -10,7 +10,7 @@ pipeline {
         stage('Code Checkout') {
             steps {
                 git branch: 'master',
-                    url: 'https://github.com/emnahomrani29/DevOps.git',
+                    url: 'https://github.com/emnahomrani29/DevOps.git'
             }
         }
         stage('Code Build') {
