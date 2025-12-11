@@ -26,7 +26,13 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo '🧪 Running tests...'
-                sh 'mvn test'
+                sh '''
+                    mvn test \
+                    -Dspring.datasource.url=jdbc:h2:mem:testdb \
+                    -Dspring.datasource.driver-class-name=org.h2.Driver \
+                    -Dspring.jpa.hibernate.ddl-auto=create-drop \
+                    -Dspring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+                '''
             }
         }
         
