@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo '📥 Cloning repository...'
                 git credentialsId: 'github-credentials', 
-                    branch: 'main', 
+                    branch: 'master', 
                     url: 'https://github.com/emnahomrani29/DevOps.git'
             }
         }
