@@ -61,24 +61,14 @@ pipeline {
                 }
             }
         }
-        
-       
+    }
+    
     post {
         success {
             echo '✅ Pipeline successful!'
-            emailext (
-                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build réussi! Voir: ${env.BUILD_URL}",
-                to: "emnahomrani29@gmail.com"
-            )
         }
         failure {
             echo '❌ Pipeline failed!'
-            emailext (
-                subject: "❌ FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build échoué. Voir: ${env.BUILD_URL}console",
-                to: "emnahomrani29@gmail.com"
-            )
         }
     }
 }
