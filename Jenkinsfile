@@ -37,7 +37,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo '🐳 Building Docker image...'
-                sh 'docker build -t emnahomrani/student-management:latest -f Dockerfile .'
+                sh 'docker build -t emnahomrani/student-management -f Dockerfile .'
             }
         }
         
@@ -56,6 +56,34 @@ pipeline {
             }
         }
     }
+    stage('Deploy to Kubernetes') {
+                steps {
+                    echo '🚀 Deploying application to Kubernetes...'
+                    script {
+                        // Vérifie la connexion au cluster (optionnel, mais bonne pratique)
+                        sh 'kubectl cluster-info'
+
+                        // --- 1. Déploiement de la Base de Données MySQL (Dépendance) ---
+                        echo '💾 Applying MySQL Deployment...'
+                        // Applique le fichier de déploiement et de service MySQL
+                        sh 'kubectl apply -f mysql-deployment.yaml'
+
+                        // Optionnel: Attendre que MySQL soit prêt avant de déployer l'application
+                        // sh 'kubectl rollout status deployment/mysql-deployment-name --timeout=5m'
+
+                        // --- 2. Déploiement de l'Application Spring Boot ---
+                        echo '🌐 Applying Spring Boot Deployment...'
+                        // Applique le fichier de déploiement et de service Spring Boot
+                        sh 'kubectl apply -f springboot-deployment.yaml'
+
+                        // Optionnel: Vérifier le statut du déploiement de l'application
+                        sh 'kubectl rollout status deployment/student-management-deployment --timeout=5m'
+
+                        echo 'Deployment completed. Services will be available shortly.'
+                    }
+                }
+            }
+        }
     
     post {
         success {
