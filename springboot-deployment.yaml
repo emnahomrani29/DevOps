@@ -1,62 +1,59 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: spring-config
-data:
-  SPRING_DATASOURCE_URL: jdbc:mysql://mysql-service:3306/studentdb
-  SPRING_JPA_HIBERNATE_DDL_AUTO: update
-  SPRING_JPA_SHOW_SQL: "true"
-  SERVER_PORT: "8089"
-
----
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: spring-secret
-type: Opaque
-data:
-  SPRING_DATASOURCE_USERNAME: cm9vdA==
-  SPRING_DATASOURCE_PASSWORD: cm9vdA==
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-app
+  name: mysql-deployment
+  namespace: student-management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: spring-app
+      app: mysql
   template:
     metadata:
       labels:
-        app: spring-app
+        app: mysql
     spec:
       containers:
-        - name: spring-app
-          image: emnahomrani/student-management
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_DATABASE
+              value: student_db
           ports:
-            - containerPort: 8089
-          envFrom:
-            - configMapRef:
-                name: spring-config
-            - secretRef:
-                name: spring-secret
-
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
 ---
-
+# Service MySQL
 apiVersion: v1
 kind: Service
 metadata:
-  name: spring-service
+  name: mysql-service
+  namespace: student-management
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
-    app: spring-app
+    app: mysql
   ports:
-    - port: 8089
-      targetPort: 8089
-      nodePort: 30089
-
+    - port: 3306
+      targetPort: 3306
+---
+# Persistent Volume Claim pour MySQL
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: student-management
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
